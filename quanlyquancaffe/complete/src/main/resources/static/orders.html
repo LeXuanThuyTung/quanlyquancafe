@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Quản lý quán Cà Phê Hải Khanh Thịnh - Đơn hàng" />
+  <title>Quản lý - Đơn hàng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body { background: #f2ede7; font-family: system-ui, sans-serif; }
+    .navbar-custom { background-color: #5a3e2b; }
+    .navbar-custom .nav-link, .navbar-custom .navbar-brand { color: #f5e9de; }
+    .navbar-custom .nav-link.active { font-weight: bold; text-decoration: underline; }
+    .card { border-radius: 1rem; background: #fffaf5; border: 1px solid #e2d8cf; }
+    .btn-action { background: #8c6d49; color: #fff; border: none; }
+    .btn-action:hover { background: #6f5438; color: #fff; }
+    .table-hover tbody tr:hover { background-color: #f9f3ec; }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Cà Phê Hải Khanh Thịnh</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+        <span class="navbar-toggler-icon"><i class="bi bi-list" style="font-size:1.25rem; color:#f5e9de;"></i></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+                <li class="nav-item"><a class="nav-link" href="dathang">Đặt hàng</a></li>
+                <li class="nav-item"><a class="nav-link" href="timkiem.html">Tìm đơn</a></li>
+                <li class="nav-item"><a class="nav-link active" href="quanli.html">Quản lý</a></li>
+        </ul>
+        <form class="d-flex" role="search" action="/search" method="GET">
+          <input class="form-control me-2" type="search" name="q" placeholder="Tìm đơn..." />
+          <button class="btn btn-light btn-sm" type="submit"><i class="bi bi-search"></i></button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Danh sách Giao dịch</strong>
+        <div>
+          <button class="btn btn-sm btn-action me-2" data-bs-toggle="modal" data-bs-target="#addOrderModal">
+            <i class="bi bi-plus-circle"></i> Thêm giao dịch
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Mã</th>
+              <th>Nhân viên</th>
+              <th>Sản phẩm</th>
+              <th>Số lượng</th>
+              <th>Thành tiền</th>
+              <th>Ngày</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tổng tiền -->
+    <div class="mb-4">
+      <h5>Tổng doanh thu: <span id="totalRevenue">0₫</span></h5>
+    </div>
+  </div>
+
+  <!-- Modal thêm giao dịch -->
+  <div class="modal fade" id="addOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Thêm giao dịch mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addOrderForm">
+            <div class="mb-3">
+              <label class="form-label">Nhân viên</label>
+              <select id="selectNhanVien" class="form-select" required>
+                <option value="">-- Chọn nhân viên --</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Sản phẩm</label>
+              <select id="selectMenuItem" class="form-select" required>
+                <option value="">-- Chọn sản phẩm --</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Số lượng</label>
+              <input type="number" id="orderQty" class="form-control" min="1" value="1" required />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button class="btn btn-action" id="btnAddOrder">Thêm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1055">
+    <div id="liveToast" class="toast align-items-center text-bg-success border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMsg">Thành công!</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // helper escape
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    const toastEl = document.getElementById('liveToast');
+    const toast = new bootstrap.Toast(toastEl);
+    const toastMsg = document.getElementById('toastMsg');
+    function showToast(msg, err=false) {
+      toastEl.classList.remove('text-bg-success','text-bg-danger');
+      toastEl.classList.add(err ? 'text-bg-danger' : 'text-bg-success');
+      toastMsg.textContent = msg;
+      toast.show();
+    }
+
+    const ordersBody = document.getElementById('ordersTableBody');
+    const selectNV = document.getElementById('selectNhanVien');
+    const selectMenu = document.getElementById('selectMenuItem');
+    const totalRevenueEl = document.getElementById('totalRevenue');
+
+    let cachedNV = [];
+    let cachedMenu = [];
+
+    async function loadLookups() {
+      try {
+        const [r1, r2] = await Promise.all([
+          fetch('/api/nhanvien?ts=' + Date.now()),
+          fetch('/api/menu?ts=' + Date.now())
+        ]);
+        if (!r1.ok || !r2.ok) {
+          showToast('Lỗi khi tải dữ liệu lookup', true); return;
+        }
+        cachedNV = await r1.json();
+        cachedMenu = await r2.json();
+
+        // populate selects
+        selectNV.innerHTML = '<option value="">-- Chọn nhân viên --</option>' +
+          cachedNV.map(nv => `<option value="${nv.id}">${escapeHtml(nv.ten)}${nv.chucVu ? ' ('+escapeHtml(nv.chucVu)+')' : ''}</option>`).join('');
+        selectMenu.innerHTML = '<option value="">-- Chọn sản phẩm --</option>' +
+          cachedMenu.map(mi => `<option value="${mi.id}" data-price="${mi.price}">${escapeHtml(mi.name)} (${mi.id}) - ${Number(mi.price).toLocaleString()}₫</option>`).join('');
+      } catch (err) {
+        console.error(err);
+        showToast('Không thể tải danh sách nhân viên/sản phẩm', true);
+      }
+    }
+
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/orders?ts=' + Date.now(), {cache:'no-store'});
+        if (!res.ok) { showToast('Lỗi khi tải đơn hàng', true); return; }
+        const list = await res.json();
+        ordersBody.innerHTML = list.map(o => {
+          const id = o.id;
+          const nvName = o.nhanVien ? o.nhanVien.ten : 'N/A';
+          const prodName = o.menuItem ? o.menuItem.name : 'N/A';
+          const qty = o.soLuong ?? 0;
+          const total = o.thanhTien ?? ( (o.menuItem && o.menuItem.price) ? o.menuItem.price * qty : 0 );
+          const date = o.orderDate ? new Date(o.orderDate).toLocaleString() : '';
+          return `
+            <tr data-id="${id}">
+              <td>${id}</td>
+              <td>${escapeHtml(nvName)}</td>
+              <td>${escapeHtml(prodName)}</td>
+              <td>${qty}</td>
+              <td>${Number(total).toLocaleString()}₫</td>
+              <td>${escapeHtml(date)}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-danger btn-delete-order" data-id="${id}"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // compute revenue
+        const revenue = list.reduce((s, o) => s + (o.thanhTien || ((o.menuItem && o.menuItem.price) ? o.menuItem.price * (o.soLuong||0) : 0)), 0);
+        totalRevenueEl.textContent = Number(revenue).toLocaleString() + '₫';
+      } catch (err) {
+        console.error(err);
+        showToast('Không thể kết nối server', true);
+      }
+    }
+
+    // add order
+    document.getElementById('btnAddOrder').addEventListener('click', async () => {
+      const nvId = selectNV.value;
+      const menuId = selectMenu.value;
+      const qty = parseInt(document.getElementById('orderQty').value) || 0;
+      if (!nvId || !menuId || qty <= 0) { showToast('Nhập thông tin hợp lệ', true); return; }
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ nhanVienId: Number(nvId), menuItemId: Number(menuId), soLuong: qty })
+        });
+        if (res.ok) {
+          showToast('Thêm giao dịch thành công');
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('addOrderModal')).hide();
+          await loadOrders();
+        } else {
+          let err = 'Lỗi khi thêm';
+          try { const b = await res.json(); err = b.error || JSON.stringify(b); } catch(_) { try { err = await res.text(); } catch(_) {} }
+          showToast(err, true);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Không thể kết nối server', true);
+      }
+    });
+
+    // delegation delete
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.btn-delete-order');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (!confirm('Xóa giao dịch #' + id + '?')) return;
+      try {
+        const res = await fetch('/api/orders/' + id, { method: 'DELETE' });
+        if (res.ok || res.status === 204) {
+          showToast('Đã xóa thành công');
+          await loadOrders();
+        } else {
+          let err = 'Lỗi khi xóa';
+          try { const b = await res.json(); err = b.error || JSON.stringify(b); } catch(_) { try { err = await res.text(); } catch(_) {} }
+          showToast(err, true);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Không thể kết nối server', true);
+      }
+    });
+
+    // initial
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadLookups();
+      await loadOrders();
+    });
+  </script>
+</body>
+</html>
