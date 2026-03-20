@@ -4,10 +4,10 @@
 
 # Thành viên:
 
-Lê Xuân Thủy Tùng
-Lưu Đức Tùng
+Lê Xuân Thủy Tùng (24100080)
+Lưu Đức Tùng (24100061)
 #
-Nội dung 01: Xây dựng ứng dụng quản lý quán cà phê Hải-Khanh-Thịnh
+Nội dung 01: Xây dựng ứng dụng quản lý quán cà phê 
 
 Yêu cầu:
 
