@@ -1,0 +1,1 @@
+All commits must include a Signed-off-by trailer at the end of each commit message to indicate that the contributor agrees to the Developer Certificate of Origin. For additional details, please refer to the blog post Hello DCO, Goodbye CLA: Simplifying Contributions to Spring.
